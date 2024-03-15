@@ -2,7 +2,8 @@ import pandas as pd
 import numpy as np
 import faiss
 from flask import Flask, request
-
+from flask_ngrok import run_with_ngrok
+import json
 
 def nonzero_mean(A):
     vector = []
@@ -31,10 +32,15 @@ class Algorithm:
         return y_pred_1 
       
     def run(self): 
-        app = Flask(__name__)   
-        @app.route('/predict_', methods=['GET'])   
+        app = Flask(__name__)
+        #run_with_ngrok(app)
+        @app.route("/")   
+        @app.route('/predict', methods=['GET'])   
         def predict_n(): 
             if request.method == 'GET':
                 user_id=int(request.args['user_id'])
-                return self.predict_(user_id)
-        app.run(debug=True)
+                return json.dumps({"prediction": self.predict_(user_id)})
+        app.run()
+
+alg = np.random.randint(low=0, high=1000, size =(1000, 4499))
+Algorithm(alg).run()
