@@ -7,15 +7,6 @@ from flask import jsonify
 
 
 app = Flask(__name__)
-# run_with_ngrok(app) 
-
-
-class pr:
-    def __init__(self, ban):
-        self.ban = ban
-    def predict(self, x):
-        return [123]
-
 
 class Ensembler:
     def __init__(self, a, callable):
