@@ -29,16 +29,6 @@ def extract_port(url):
             
 
 app = Flask(__name__)
-# run_with_ngrok(app) 
-
-
-#data = {"url":["https://basilisk-relaxed-ghost.ngrok-free.app", "http://127.0.0.1:5000"], "database_url": "http://127.0.0.1:7000"}
-data = {"url":["127.0.0.1:24567"], "database_url": "127.0.0.1:6000"}
-
-with open('config.json', 'w') as outfile:
-    json.dump(data, outfile)
-
-
 
 class Ensembler:
     def __init__(self, a, callable, database_url):

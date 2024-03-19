@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import faiss
 from flask import Flask, request
-from flask_ngrok import run_with_ngrok
 import json
 
 def nonzero_mean(A):
@@ -18,10 +17,42 @@ def nonzero_mean(A):
 
 class Algorithm:
 
-    def __init__(self, data, id_mapping=None):
-        self.A = data
+    def create_A(self, data):
+        df = pd.DataFrame(data, columns=["movie_id", "user_id", "rating", "date"])
+        df["user_index"] = df["user_id"].map({x: i for i, x in enumerate(df["user_id"].unique())})
+        A = np.zeros((df["user_id"].nunique(), df["movie_id"].nunique()))
+        for movie_id, user_id, rating in tqdm(df[["movie_id", "user_index", "rating"]].values):
+            A[user_id, movie_id - 1] = rating
+        return A
+
+    def fit_(self, port):
+        
+        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+        host = '127.0.0.1' 
+        server_socket.bind((host, port)) 
+        server_socket.listen(50)
+        client_socket, addr = server_socket.accept() 
+        print(f"Connection from {addr}") 
+        file_name = "data4.csv" 
+        print(f"Receiving file: {file_name}") 
+        receive_file(client_socket, file_name) 
+        print(f"File '{file_name}' received successfully.") 
+        client_socket.close() 
+        
+        data = []
+ 
+        with open("./data4.csv", "r") as f: 
+            lines = f.readlines() 
+            for x in tqdm(lines): 
+                movie_id, user_id, rating, date = x.split(",") 
+                data.append((movie_id, int(user_id), int(rating), date))
+
+        self.A = self.create_A(data)
         self.index = faiss.IndexFlatIP(4499)
         self.index.add(self.A)
+
+    def __init__(self):
+        pass
         
         
     def predict_(self, user_id, k=10):                                     
@@ -42,5 +73,4 @@ class Algorithm:
                 return json.dumps({"prediction": self.predict_(user_id)})
         app.run()
 
-alg = np.random.randint(low=0, high=1000, size =(1000, 4499))
-Algorithm(alg).run()
+Algorithm().run()

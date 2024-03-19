@@ -3,7 +3,6 @@ import numpy as np
 import faiss
 import math
 import networkx as nx
-import matplotlib.pyplot as plt
 from flask import Flask, request
 import json
 import socket
@@ -152,5 +151,5 @@ class Algorithm_graph:
                 self.fit_(port)
                 return "200"    
         
-        app.run()
+        app.run(port=5002)
 Algorithm_graph().run()
